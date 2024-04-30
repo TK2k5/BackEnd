@@ -15,8 +15,7 @@ app.use(morgan("dev"));
 connectDb();
 
 // router
-app.use("/api", productRoutes);
-app.use("/api", categoryRoutes);
+app.use("/api", [productRoutes, categoryRoutes]);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
