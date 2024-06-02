@@ -1,26 +1,26 @@
 import {
-  checkIsIdCategory,
-  createCategoryModel,
-  deleteCategoryModel,
-  findAllCategory,
-  getOneCategoryModel,
-  updateCategoryModel,
-} from "../models/category.model.js";
+  checkIdUser,
+  createUserModel,
+  deleteUserModel,
+  getAllUserModel,
+  getOneUserModel,
+  updateUserModel,
+} from "../models/user.model.js";
 
-import { createCategoryValidate } from "../validates/category.validate.js";
+import { createUserValidate } from "../validates/user.validate.js";
 import { httpStatus } from "../configs/http-status.config.js";
 import { messageResponse } from "../utils/message.util.js";
 
-/* Get all category */
-export const getAllCategories = async (req, res) => {
+/* Get all user */
+export const getAllUser = async (req, res) => {
   try {
-    const categories = await findAllCategory();
+    const user = await getAllUserModel();
 
-    if (!categories) {
+    if (!user) {
       return messageResponse({
         res,
         status: httpStatus.BAD_REQUEST,
-        message: "Cannot get category",
+        message: "Cannot get user",
         success: false,
       });
     }
@@ -28,8 +28,9 @@ export const getAllCategories = async (req, res) => {
     return messageResponse({
       res,
       status: httpStatus.OK,
-      message: "Get all category",
-      data: categories,
+      message: "Get all user",
+      success: true,
+      data: user,
     });
   } catch (error) {
     return messageResponse({
@@ -42,13 +43,54 @@ export const getAllCategories = async (req, res) => {
   }
 };
 
-/* Create category */
-export const createCategory = async (req, res) => {
+/* Get one user */
+export const getOneUser = async (req, res) => {
+  try {
+    const id = req.params.userId;
+    const user = await getOneUserModel(id);
+
+    if (!checkIdUser(id)) {
+      return messageResponse({
+        res,
+        status: httpStatus.BAD_REQUEST,
+        message: "Id is not valid",
+        success: false,
+      });
+    }
+
+    if (!user) {
+      return messageResponse({
+        res,
+        status: httpStatus.BAD_REQUEST,
+        message: "Cannot get user",
+        success: false,
+      });
+    }
+
+    return messageResponse({
+      res,
+      status: httpStatus.OK,
+      message: "Get user successfully",
+      data: user,
+      success: true,
+    });
+  } catch (error) {
+    return messageResponse({
+      res,
+      status: httpStatus.INTERNAL_SERVER_ERROR,
+      message: "Internal Server is error",
+      success: false,
+      data: error,
+    });
+  }
+};
+
+/* Create user */
+export const createUser = async (req, res) => {
   try {
     const body = req.body;
 
-    // Validate
-    const { error } = createCategoryValidate.validate(body, {
+    const { error } = createUserValidate.validate(body, {
       abortEarly: false,
     });
 
@@ -66,23 +108,23 @@ export const createCategory = async (req, res) => {
       });
     }
 
-    const category = await createCategoryModel(body);
+    const user = await createUserModel(body);
 
-    if (!category) {
+    if (!user) {
       return messageResponse({
         res,
         status: httpStatus.BAD_REQUEST,
-        message: "Cannot create category",
+        message: "Cannot create user",
         success: false,
       });
     }
 
     return messageResponse({
       res,
-      status: httpStatus.CREATED,
-      message: "Create category successfully",
+      status: httpStatus.OK,
+      message: "Create user successfully",
+      data: user,
       success: true,
-      data: category,
     });
   } catch (error) {
     return messageResponse({
@@ -95,13 +137,14 @@ export const createCategory = async (req, res) => {
   }
 };
 
-/* Update category */
-export const updateCategory = async (req, res) => {
+/* Update user */
+export const updateUser = async (req, res) => {
   try {
-    const id = req.params.categoryId;
+    const id = req.params.userId;
     const body = req.body;
 
-    if (!checkIsIdCategory(id)) {
+    // id check
+    if (!checkIdUser(id)) {
       return messageResponse({
         res,
         status: httpStatus.BAD_REQUEST,
@@ -110,13 +153,13 @@ export const updateCategory = async (req, res) => {
       });
     }
 
-    const category = await updateCategoryModel(id, body);
+    const user = await updateUserModel(id, body);
 
-    if (!category) {
+    if (!user) {
       return messageResponse({
         res,
         status: httpStatus.BAD_REQUEST,
-        message: "Cannot update category",
+        message: "Cannot update user",
         success: false,
       });
     }
@@ -124,9 +167,9 @@ export const updateCategory = async (req, res) => {
     return messageResponse({
       res,
       status: httpStatus.OK,
-      message: "Update category successfully",
+      message: "Update user successfully",
+      data: user,
       success: true,
-      data: category,
     });
   } catch (error) {
     return messageResponse({
@@ -139,13 +182,14 @@ export const updateCategory = async (req, res) => {
   }
 };
 
-/* Get one category */
-export const getOneCategory = async (req, res) => {
+/* Delete user */
+export const deleteUser = async (req, res) => {
   try {
-    const id = req.params.categoryId;
-    const category = await getOneCategoryModel(id);
+    const id = req.params.userId;
 
-    if (!checkIsIdCategory(id)) {
+    const user = await deleteUserModel(id);
+
+    if (!checkIdUser(id)) {
       return messageResponse({
         res,
         status: httpStatus.BAD_REQUEST,
@@ -154,11 +198,11 @@ export const getOneCategory = async (req, res) => {
       });
     }
 
-    if (!category) {
+    if (!user) {
       return messageResponse({
         res,
         status: httpStatus.BAD_REQUEST,
-        message: "Cannot get category",
+        message: "Cannot delete user",
         success: false,
       });
     }
@@ -166,51 +210,9 @@ export const getOneCategory = async (req, res) => {
     return messageResponse({
       res,
       status: httpStatus.OK,
-      message: "Get category successfully",
+      message: "Delete user successfully",
+      data: user,
       success: true,
-      data: category,
-    });
-  } catch (error) {
-    return messageResponse({
-      res,
-      status: httpStatus.INTERNAL_SERVER_ERROR,
-      message: "Internal Server is error",
-      success: false,
-      data: error,
-    });
-  }
-};
-
-export const deleteCategory = async (req, res) => {
-  try {
-    const id = req.params.categoryId;
-
-    if (!checkIsIdCategory(id)) {
-      return messageResponse({
-        res,
-        status: httpStatus.BAD_REQUEST,
-        message: "Id is not valid",
-        success: false,
-      });
-    }
-
-    const category = await deleteCategoryModel(id);
-
-    if (!category) {
-      return messageResponse({
-        res,
-        status: httpStatus.BAD_REQUEST,
-        message: "Cannot delete category",
-        success: false,
-      });
-    }
-
-    return messageResponse({
-      res,
-      status: httpStatus.OK,
-      message: "Delete category successfully",
-      success: true,
-      data: category,
     });
   } catch (error) {
     return messageResponse({

@@ -7,6 +7,7 @@ import {
   updateProductModel,
 } from "../models/product.model.js";
 
+import { createProductValidate } from "../validates/product.validate.js";
 import { httpStatus } from "../configs/http-status.config.js";
 import { messageResponse } from "../utils/message.util.js";
 
@@ -86,6 +87,25 @@ export const getOneProduct = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const body = req.body;
+    // Validate
+    const { error } = createProductValidate.validate(body, {
+      abortEarly: false,
+    });
+
+    if (error) {
+      const message = error.details.map((item) => ({
+        message: item.message,
+        name: item.context.label,
+      }));
+
+      return messageResponse({
+        res,
+        success: false,
+        status: httpStatus.BAD_REQUEST,
+        message: message,
+      });
+    }
+
     const product = await createProductModel(body);
 
     if (!product) {

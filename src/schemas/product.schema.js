@@ -9,10 +9,12 @@ const productSChema = new mongoose.Schema(
     priceProduct: {
       type: Number,
       required: true,
+      default: 0,
     },
     descProduct: {
       type: String,
       required: false,
+      default: "",
     },
     image: {
       type: String,
@@ -21,6 +23,11 @@ const productSChema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
+    },
+    count: {
+      type: Number,
+      required: true,
+      default: 0,
     },
   },
   {

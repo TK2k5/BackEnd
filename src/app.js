@@ -4,6 +4,7 @@ import categoryRoutes from "./routes/category.route.js";
 import connectDb from "./configs/connect-db.config.js";
 import express from "express";
 import productRoutes from "./routes/product.route.js";
+import userRoutes from "./routes/user.route.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ connectDb();
 
 app.use("/api/v1", categoryRoutes);
 app.use("/api/v1", productRoutes);
+app.use("/api/v1", userRoutes);
 
 const port = process.env.PORT || 3000;
 
