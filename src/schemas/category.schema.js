@@ -10,6 +10,12 @@ const categorySchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    productIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
   },
   {
     versionKey: false,

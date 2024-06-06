@@ -29,6 +29,11 @@ const productSChema = new mongoose.Schema(
       required: true,
       default: 0,
     },
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
   },
   {
     versionKey: false,

@@ -27,6 +27,7 @@ export const getAllCategories = async (req, res) => {
 
     return messageResponse({
       res,
+      success: true,
       status: httpStatus.OK,
       message: "Get all category",
       data: categories,

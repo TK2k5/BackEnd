@@ -40,3 +40,37 @@ export const deleteCategoryModel = async (id) => {
 export const checkIsIdCategory = (id) => {
   return isObjectIdOrHexString(id);
 };
+
+// Check id catefory is exist
+export const checkIsExistCategory = async (body) => {
+  const category = await Category.findById({
+    _id: body.categoryId,
+  });
+
+  return category;
+};
+
+// Thêm id product vào mảng productIds của category
+export const addIdProductToCategory = async (body, product) => {
+  const category = await Category.findByIdAndUpdate(
+    { _id: body.categoryId },
+    { $addToSet: { productIds: product._id } },
+    { new: true }
+  );
+
+  return category;
+};
+
+// Tiến hành xóa id product vào mảng productIds của category
+export const deleteIdProductFromCategory = async (
+  isExistCategory,
+  isExistProduct
+) => {
+  const category = await Category.findByIdAndUpdate(
+    { _id: isExistCategory.id },
+    { $pull: { productIds: isExistProduct._id } },
+    { new: true }
+  );
+
+  return category;
+};

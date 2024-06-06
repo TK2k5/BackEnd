@@ -29,4 +29,9 @@ export const createProductValidate = joi.object({
     "number.empty": "Count cannot empty",
     "any.required": "Count is required",
   }),
+  categoryId: joi.string().required().messages({
+    "string.base": "CategoryId must be a string",
+    "string.empty": "CategoryId cannot empty",
+    "any.required": "CategoryId is required",
+  }),
 });

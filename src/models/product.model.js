@@ -40,3 +40,10 @@ export const deleteProductModel = async (id) => {
 export const checkIsIdProduct = (id) => {
   return isObjectIdOrHexString(id);
 };
+
+// check product is exist
+export const checkIsExistProduct = async (id) => {
+  const product = await Product.findById({ _id: id });
+
+  return product;
+};
