@@ -2,8 +2,8 @@ import Category from "../schemas/category.schema.js";
 import { isObjectIdOrHexString } from "mongoose";
 
 // get all category
-export const findAllCategory = () => {
-  const categories = Category.find();
+export const findAllCategory = (query, options) => {
+  const categories = Category.paginate(query, options);
 
   return categories;
 };
@@ -24,7 +24,10 @@ export const updateCategoryModel = async (id, body) => {
 
 // get one category
 export const getOneCategoryModel = async (id) => {
-  const category = await Category.findById(id);
+  const category = await Category.findById(id).populate({
+    path: "productIds",
+    select: "-categoryId -category",
+  });
 
   return category;
 };

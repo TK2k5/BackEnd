@@ -20,7 +20,28 @@ import { messageResponse } from "../utils/message.util.js";
 /* Get all product */
 export const getAllProduct = async (req, res) => {
   try {
-    const product = await getAllProductModel();
+    const params = req.query;
+    const { _page = 1, _limit = 10, q } = params;
+    const options = {
+      page: _page,
+      limit: _limit,
+      populate: [{ path: "categoryId", select: "-productIds" }],
+    };
+
+    const query = q
+      ? {
+          $and: [
+            {
+              $or: [
+                { nameProduct: { $regex: new RegExp(q), $options: "i" } },
+                { image: { $regex: new RegExp(q), $options: "i" } },
+              ],
+            },
+          ],
+        }
+      : {};
+
+    const product = await getAllProductModel(query, options);
 
     if (!product) {
       return messageResponse({

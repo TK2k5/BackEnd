@@ -14,7 +14,29 @@ import { messageResponse } from "../utils/message.util.js";
 /* Get all category */
 export const getAllCategories = async (req, res) => {
   try {
-    const categories = await findAllCategory();
+    const params = req.query;
+    const { _page = 1, _limit = 10, q } = params;
+    const options = {
+      page: _page,
+      limit: _limit,
+      // populate: [{ path: "productIds", select: "-categoryId" }],
+      select: "-productIds",
+    };
+
+    const query = q
+      ? {
+          $and: [
+            {
+              $or: [
+                { nameCategory: { $regex: new RegExp(q), $options: "i" } },
+                { image: { $regex: new RegExp(q), $options: "i" } },
+              ],
+            },
+          ],
+        }
+      : {};
+
+    const categories = await findAllCategory(query, options);
 
     if (!categories) {
       return messageResponse({

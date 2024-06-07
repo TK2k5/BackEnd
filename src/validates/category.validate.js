@@ -11,9 +11,7 @@ export const createCategoryValidate = joi.object({
     "string.empty": "Image cannot empty",
     "any.required": "Image is required",
   }),
-  productIds: joi.string().required().messages({
+  productIds: joi.string().allow("").messages({
     "string.base": "ProductIds must be a string",
-    "string.empty": "ProductIds cannot empty",
-    "any.required": "ProductIds is required",
   }),
 });

@@ -2,15 +2,18 @@ import Product from "../schemas/product.schema.js";
 import { isObjectIdOrHexString } from "mongoose";
 
 // Get all product
-export const getAllProductModel = () => {
-  const product = Product.find();
+export const getAllProductModel = (query, options) => {
+  const product = Product.paginate(query, options);
 
   return product;
 };
 
 // Get one product
 export const getOneProductModel = async (id) => {
-  const product = await Product.findById(id);
+  const product = await Product.findById(id).populate({
+    path: "categoryId",
+    select: "-productIds",
+  });
 
   return product;
 };
