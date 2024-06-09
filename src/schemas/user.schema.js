@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
+import mongoosepaginate from "mongoose-paginate-v2";
 
 export const userSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
     },
     email: {
       type: String,
@@ -22,11 +22,9 @@ export const userSchema = mongoose.Schema(
     },
     phone: {
       type: String,
-      required: true,
     },
     address: {
       type: String,
-      required: true,
     },
   },
   {
@@ -35,6 +33,7 @@ export const userSchema = mongoose.Schema(
   }
 );
 
+userSchema.plugin(mongoosepaginate);
 const User = mongoose.model("User", userSchema);
 
 export default User;

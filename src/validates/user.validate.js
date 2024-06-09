@@ -6,15 +6,19 @@ export const createUserValidate = joi.object({
     "string.empty": "Name cannot empty",
     "any.required": "Name is required",
   }),
-  email: joi.string().required().messages({
+  email: joi.string().email().required().messages({
     "string.base": "Email must be a string",
     "string.empty": "Email cannot empty",
     "any.required": "Email is required",
   }),
-  password: joi.string().required().messages({
+  password: joi.string().min(6).required().messages({
     "string.base": "Password must be a string",
     "string.empty": "Password cannot empty",
     "any.required": "Password is required",
+  }),
+  confirmPassword: joi.string().required().valid(joi.ref("password")).messages({
+    "any.only": "Password is not match",
+    "any.required": "Password cannot empty",
   }),
   role: joi.string().required().default("Customer").messages({
     "string.base": "Role must be a string",

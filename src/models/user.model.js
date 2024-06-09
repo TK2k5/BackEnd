@@ -40,3 +40,10 @@ export const deleteUserModel = async (id) => {
 export const checkIdUser = (id) => {
   return isObjectIdOrHexString(id);
 };
+
+// check email có tồn tại chưa
+export const checkIsExistUser = async (body) => {
+  const user = await User.findOne({ email: body.email });
+
+  return user;
+};

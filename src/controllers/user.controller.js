@@ -1,15 +1,27 @@
+import * as dotenv from "dotenv";
+
 import {
   checkIdUser,
+  checkIsExistUser,
   createUserModel,
   deleteUserModel,
   getAllUserModel,
   getOneUserModel,
   updateUserModel,
 } from "../models/user.model.js";
+import {
+  loginValidate,
+  registerValidate,
+} from "../validates/authen.validate.js";
 
+import User from "../schemas/user.schema.js";
+import bcrypt from "bcrypt";
 import { createUserValidate } from "../validates/user.validate.js";
 import { httpStatus } from "../configs/http-status.config.js";
+import jwt from "jsonwebtoken";
 import { messageResponse } from "../utils/message.util.js";
+
+dotenv.config();
 
 /* Get all user */
 export const getAllUser = async (req, res) => {
@@ -223,4 +235,159 @@ export const deleteUser = async (req, res) => {
       data: error,
     });
   }
+};
+
+export const userController = {
+  // register user
+  register: async (req, res) => {
+    try {
+      // body request
+      const body = req.body;
+      const { error } = registerValidate.validate(body, {
+        abortEarly: false,
+      });
+
+      if (error) {
+        const message = error.details.map((item) => ({
+          message: item.message,
+          name: item.context.label,
+        }));
+
+        return messageResponse({
+          res,
+          status: httpStatus.BAD_REQUEST,
+          message: message,
+          success: false,
+        });
+      }
+
+      // check email đã tồn tại chưa
+      const isExistUser = await checkIsExistUser(body);
+      if (isExistUser) {
+        return messageResponse({
+          res,
+          status: httpStatus.BAD_REQUEST,
+          message: "Email đã tồn tại",
+          success: false,
+        });
+      }
+
+      // hash password
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(body.password, salt);
+
+      // Tạo user
+      const newUser = await User.create({
+        ...body,
+        password: hashPassword,
+      });
+      if (!newUser) {
+        return messageResponse({
+          res,
+          status: httpStatus.BAD_REQUEST,
+          message: "Register failed",
+          success: false,
+        });
+      }
+
+      const token = jwt.sign({ _id: newUser._id }, process.env.TOKEN_SECRET, {
+        expiresIn: "1m",
+      });
+
+      return messageResponse({
+        res,
+        status: httpStatus.BAD_REQUEST,
+        message: "Register successfully",
+        success: false,
+        body: token,
+      });
+    } catch (error) {
+      return messageResponse({
+        res,
+        status: httpStatus.INTERNAL_SERVER_ERROR,
+        message: "Internal Server is error",
+        success: false,
+        data: error,
+      });
+    }
+  },
+  //login
+  login: async (req, res) => {
+    try {
+      const body = req.body;
+
+      // validate
+      const { error } = loginValidate.validate(body, {
+        abortEarly: false,
+      });
+
+      if (error) {
+        const message = error.details.map((item) => ({
+          message: item.message,
+          name: item.context.label,
+        }));
+
+        return messageResponse({
+          res,
+          status: httpStatus.BAD_REQUEST,
+          message: message,
+          success: false,
+        });
+      }
+
+      // check email đã tồn tại chưa
+      const isExistUser = await checkIsExistUser(body);
+      if (!isExistUser) {
+        return messageResponse({
+          res,
+          status: httpStatus.BAD_REQUEST,
+          message: "Email không tồn tại",
+          success: false,
+        });
+      }
+
+      // check password
+      const isValidPassword = await bcrypt.compare(
+        body.password,
+        isExistUser.password
+      );
+
+      if (!isValidPassword) {
+        return messageResponse({
+          res,
+          status: httpStatus.BAD_REQUEST,
+          message: "Mật khẩu không chính xác",
+          success: false,
+        });
+      }
+
+      if (isExistUser && isValidPassword) {
+        const token = jwt.sign(
+          { _id: isExistUser._id },
+          process.env.TOKEN_SECRET,
+          {
+            expiresIn: "1m",
+          }
+        );
+
+        const { password, ...user } = isExistUser._doc;
+        return res.status(httpStatus.OK).json({
+          message: "Login successfully",
+          success: true,
+          accessToken: token,
+          email: user.email,
+          id: user._id,
+          role: user.role,
+        });
+      }
+    } catch (error) {
+      return messageResponse({
+        res,
+        status: httpStatus.INTERNAL_SERVER_ERROR,
+        message: "Internal Server is error",
+        success: false,
+        data: error,
+      });
+    }
+  },
 };
