@@ -366,7 +366,7 @@ export const userController = {
           { _id: isExistUser._id },
           process.env.TOKEN_SECRET,
           {
-            expiresIn: "1m",
+            expiresIn: "1d",
           }
         );
 
@@ -390,4 +390,17 @@ export const userController = {
       });
     }
   },
+};
+
+// Get detail user
+export const getDetailUser = async (req, res) => {
+  const id = req.userId;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.json(user);
 };
