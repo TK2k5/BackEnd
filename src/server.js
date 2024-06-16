@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 
 import { connectDb } from './configs/connect-db.config.js';
 import express from 'express';
+import rootRoutes from './routes/index.js';
 
 dotenv.config();
 
@@ -16,6 +17,9 @@ app.get('/', (_, res) => {
 
 // connect mongoDb
 connectDb();
+
+// routes
+app.use('/api/v1', rootRoutes);
 
 const port = process.env.PORT || 3000;
 
