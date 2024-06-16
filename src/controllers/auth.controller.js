@@ -53,9 +53,32 @@ export const loginController = async (req, res) => {
   // generate token
   const accessToken = await handleGenerateToken({ payload: { _id: user._id, email: user.email } });
 
-  return res.status(HTTP_STATUS.CREATED).json({
+  return res.status(HTTP_STATUS.OK).json({
     message: 'Login successfully',
     success: true,
     accessToken,
   });
+};
+
+// send email
+export const sendEmailController = async (req, res) => {
+  const { email } = req.email;
+
+  // check email
+  const user = await checkEmailExist(email);
+
+  if (user) {
+    // generate token
+    const accessToken = await handleGenerateToken({ payload: { email: user.email } });
+
+    // link reset password
+    const link = `http://localhost:8080/reset-password?token=${accessToken}`;
+
+    // send email
+    return res.status(HTTP_STATUS.OK).json({
+      message: 'Email sent successfully',
+      success: true,
+      link,
+    });
+  }
 };

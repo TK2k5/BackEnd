@@ -29,3 +29,11 @@ export const loginValidation = joi.object({
     'string.empty': 'Mật khẩu không được để trống',
   }),
 });
+
+export const sendEmailValidation = joi.object({
+  email: joi.string().email().required().messages({
+    'string.email': 'Email không hợp lệ',
+    'any.required': 'Email không được để trống',
+    'string.empty': 'Email không được để trống',
+  }),
+});
