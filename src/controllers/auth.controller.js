@@ -1,8 +1,12 @@
-import { checkEmailExist, createUser } from '../services/auth.service.js';
+import * as dotenv from 'dotenv';
+
+import { checkEmailExist, createUser, updatePassword } from '../services/auth.service.js';
 import { handleComparePassword, handleHashPassword } from '../utils/hash-password.util.js';
 
 import { HTTP_STATUS } from '../common/http-status.common.js';
 import { handleGenerateToken } from '../utils/jwt.util.js';
+
+dotenv.config();
 
 export const registerController = async (req, res) => {
   const body = req.user;
@@ -69,10 +73,14 @@ export const sendEmailController = async (req, res) => {
 
   if (user) {
     // generate token
-    const accessToken = await handleGenerateToken({ payload: { email: user.email } });
+    const accessToken = await handleGenerateToken({
+      payload: { email: user.email },
+      secretKey: process.env.SEND_EMAIL_SECRET_KEY,
+      expiresIn: '1h',
+    });
 
     // link reset password
-    const link = `http://localhost:8080/reset-password?token=${accessToken}`;
+    const link = `${process.env.URL_SERVER}/reset-password?token=${accessToken}`;
 
     // send email
     return res.status(HTTP_STATUS.OK).json({
@@ -81,4 +89,31 @@ export const sendEmailController = async (req, res) => {
       link,
     });
   }
+};
+
+// reset password
+export const resetPasswordController = async (req, res) => {
+  const { newPassword, confirmPassword } = req.forgotPassword;
+  const { email } = req.user;
+
+  // hash password
+  const hashPassword = await handleHashPassword({ password: newPassword });
+
+  // check email is exist
+  const user = await checkEmailExist(email);
+  if (!user) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Email not found', success: false });
+  }
+
+  // update password
+  const result = await updatePassword(user._id, hashPassword);
+
+  if (!result) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update password failed!', success: false });
+  }
+
+  return res.status(HTTP_STATUS.OK).json({
+    message: 'Update password success!',
+    success: true,
+  });
 };
