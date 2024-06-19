@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import {
   loginController,
   registerController,
@@ -11,10 +13,13 @@ import {
   validationSendEmail,
 } from '../middlewares/auth.middleware.js';
 
+import { changePasswordController } from '../controllers/user.controller.js';
 import express from 'express';
+import { validationChangePassword } from '../middlewares/user.middleware.js';
 import { verifyToken } from '../middlewares/verify-token.middleware.js';
 import { wrapRequestHandler } from '../utils/handler.util.js';
 
+dotenv.config();
 const router = express.Router();
 
 // register
@@ -26,11 +31,15 @@ router.post('/send-email', wrapRequestHandler(validationSendEmail), wrapRequestH
 // reset password
 router.put(
   '/reset-password',
-  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(verifyToken(process.env.SEND_EMAIL_SECRET_KEY)),
   wrapRequestHandler(validationResetPassword),
   wrapRequestHandler(resetPasswordController),
 );
 // change password
-router.patch('/change-password', wrapRequestHandler(verifyToken));
+router.patch(
+  '/change-password',
+  wrapRequestHandler(validationChangePassword),
+  wrapRequestHandler(changePasswordController),
+);
 
 export default router;
