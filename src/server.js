@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { connectDb } from './configs/connect-db.config.js';
+import connectDb from './configs/connect-db.config.js';
 import express from 'express';
 import rootRoutes from './routes/index.js';
 

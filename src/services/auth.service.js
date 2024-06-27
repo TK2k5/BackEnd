@@ -19,3 +19,9 @@ export const updatePassword = async (userId, newPassword) => {
   const newUserUpdate = await User.findByIdAndUpdate({ _id: userId }, { password: newPassword }, { new: true });
   return Boolean(newUserUpdate);
 };
+
+// update status user
+export const updateStatusUser = async (userId, status) => {
+  const newUser = await User.findByIdAndUpdate({ _id: userId }, { status }, { new: true });
+  return Boolean(newUser);
+};

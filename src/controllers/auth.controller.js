@@ -13,7 +13,6 @@ export const registerController = async (req, res) => {
 
   // check email
   const user = await checkEmailExist(body.email);
-
   if (user) {
     return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Email already exist', success: false });
   }
@@ -21,7 +20,7 @@ export const registerController = async (req, res) => {
   // hash password
   const hashPassword = await handleHashPassword({ password: body.password, saltNumber: 5 });
 
-  // create user in db
+  // creaet user in db
   const newUser = await createUser({ ...body, password: hashPassword });
 
   if (!newUser) {
@@ -43,9 +42,8 @@ export const loginController = async (req, res) => {
 
   // check email
   const user = await checkEmailExist(body.email);
-
   if (!user) {
-    return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Email not found', success: false });
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Email not found!', success: false });
   }
 
   // compare password
@@ -55,7 +53,7 @@ export const loginController = async (req, res) => {
   }
 
   // generate token
-  const accessToken = await handleGenerateToken({ payload: { _id: user._id, email: user.email } });
+  const accessToken = await handleGenerateToken({ payload: { _id: user._id, email: user.email, role: user.role } });
 
   return res.status(HTTP_STATUS.OK).json({
     message: 'Login successfully',
@@ -70,7 +68,6 @@ export const sendEmailController = async (req, res) => {
 
   // check email
   const user = await checkEmailExist(email);
-
   if (user) {
     // generate token
     const accessToken = await handleGenerateToken({
@@ -81,8 +78,8 @@ export const sendEmailController = async (req, res) => {
 
     // link reset password
     const link = `${process.env.URL_SERVER}/reset-password?token=${accessToken}`;
-
     // send email
+
     return res.status(HTTP_STATUS.OK).json({
       message: 'Email sent successfully',
       success: true,
@@ -93,23 +90,22 @@ export const sendEmailController = async (req, res) => {
 
 // reset password
 export const resetPasswordController = async (req, res) => {
-  const { newPassword, confirmPassword } = req.forgotPassword;
+  const { newPassword } = req.forgotPassword;
   const { email } = req.user;
 
   // hash password
   const hashPassword = await handleHashPassword({ password: newPassword });
 
-  // check email is exist
+  // check email
   const user = await checkEmailExist(email);
   if (!user) {
-    return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Email not found', success: false });
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Email not found!', success: false });
   }
 
   // update password
   const result = await updatePassword(user._id, hashPassword);
-
   if (!result) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update password failed!', success: false });
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update password faild!', success: false });
   }
 
   return res.status(HTTP_STATUS.OK).json({

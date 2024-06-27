@@ -1,3 +1,4 @@
+import { HTTP_STATUS } from '../common/http-status.common.js';
 import { changePasswordValidation } from '../validations/auth.validation.js';
 
 export const validationChangePassword = (req, res, next) => {
@@ -10,6 +11,5 @@ export const validationChangePassword = (req, res, next) => {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: errors, success: false });
   }
 
-  req.user = body;
   next();
 };
