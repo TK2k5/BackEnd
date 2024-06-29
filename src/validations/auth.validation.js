@@ -54,8 +54,7 @@ export const resetPasswordValidation = joi.object({
 
 // change password
 export const changePasswordValidation = joi.object({
-  oldPassword: joi.string().min(6).required().messages({
-    'string.min': 'Mật khẩu phải lớn hơn 6 ký tự',
+  oldPassword: joi.string().required().messages({
     'any.required': 'Mật khẩu không được để trống',
     'string.empty': 'Mật khẩu không được để trống',
   }),
