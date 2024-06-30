@@ -1,29 +1,31 @@
-import {
-  createCategory,
-  deleteCategory,
-  getAllCategory,
-  getOneCategory,
-  updateCategory,
-} from '../controllers/category.controller.js';
+import { createCategory, getCategories, getCategoryById, updateCategory } from '../controllers/category.controller.js';
 
+import { categoryMiddleware } from '../middlewares/category.middleware.js';
+import { checkPermission } from '../middlewares/check-permission.middleware.js';
 import express from 'express';
+import { verifyToken } from '../middlewares/verify-token.middleware.js';
 import { wrapRequestHandler } from '../utils/handler.util.js';
 
 const router = express.Router();
 
-// get all category
-router.get('/category', wrapRequestHandler(getAllCategory));
-
-// create category
-router.post('/category', wrapRequestHandler(createCategory));
-
-// update category
-router.patch('/category/:categoryId', wrapRequestHandler(updateCategory));
-
-// get one category
-router.get('/category/:categoryId', wrapRequestHandler(getOneCategory));
-
-// delete category
-router.delete('/category/:categoryId', wrapRequestHandler(deleteCategory));
+// create brand
+router.post(
+  '/category',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  wrapRequestHandler(categoryMiddleware),
+  wrapRequestHandler(createCategory),
+);
+// get all
+router.get('/category', wrapRequestHandler(getCategories));
+// get by id
+router.get('/category/:id', wrapRequestHandler(getCategoryById));
+// update
+router.patch(
+  '/category/:id',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  wrapRequestHandler(updateCategory),
+);
 
 export default router;

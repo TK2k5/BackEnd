@@ -1,32 +1,15 @@
+import { createBrandService, getAllBrand, getBrandByIdService, updateBrandService } from '../services/brand.service.js';
+
 import Brand from '../models/brand.model.js';
 import { HTTP_STATUS } from '../common/http-status.common.js';
-import { checkIsId } from '../middlewares/check-id.middleware.js';
-import { createBrandValidate } from '../validations/brand.validation.js';
 
 /* Create brand */
 export const createBrand = async (req, res) => {
   const body = req.body;
 
-  // Validate
-  const { error } = createBrandValidate.validate(body, {
-    abortEarly: false,
-  });
+  const newBrand = await createBrandService(body);
 
-  if (error) {
-    const message = error.details.map((item) => ({
-      message: item.message,
-      name: item.context.label,
-    }));
-
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      message: message,
-      success: false,
-    });
-  }
-
-  const brand = await Brand.create(body);
-
-  if (!brand) {
+  if (!newBrand) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       message: 'Cannot create brand',
       success: false,
@@ -36,35 +19,15 @@ export const createBrand = async (req, res) => {
   return res.status(HTTP_STATUS.OK).json({
     message: 'Create brand successfully',
     success: true,
-    data: brand,
+    brand: newBrand,
   });
 };
 
 /* Get all brand */
-export const getAllBrand = async (req, res) => {
-  const params = req.query;
-  const { _page = 1, _limit = 10, q } = params;
-  const options = {
-    page: _page,
-    limit: _limit,
-  };
+export const getBrand = async (_, res) => {
+  const result = await getAllBrand();
 
-  const query = q
-    ? {
-        $and: [
-          {
-            $or: [
-              { nameBrand: { $regex: new RegExp(q), $options: 'i' } },
-              { country: { $regex: new RegExp(q), $options: 'i' } },
-            ],
-          },
-        ],
-      }
-    : {};
-
-  const brands = await Brand.paginate(query, options);
-
-  if (!brands) {
+  if (!result) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       message: 'Cannot get brand',
       success: false,
@@ -74,20 +37,13 @@ export const getAllBrand = async (req, res) => {
   return res.status(HTTP_STATUS.OK).json({
     message: 'Get brand successfully',
     success: true,
-    data: brands,
+    brand: result,
   });
 };
 
 /* Delete brand */
 export const deleteBrand = async (req, res) => {
   const id = req.params.brandId;
-
-  if (!checkIsId(id)) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      message: 'Id is not valid',
-      success: false,
-    });
-  }
 
   const brand = await Brand.findByIdAndDelete(id);
 
@@ -101,24 +57,17 @@ export const deleteBrand = async (req, res) => {
   return res.status(HTTP_STATUS.OK).json({
     message: 'Delete brand successfully',
     success: true,
-    data: brand,
+    brand: brand,
   });
 };
 
 /* Get one brand */
-export const getOneBrand = async (req, res) => {
-  const id = req.params.brandId;
+export const getBrandById = async (req, res) => {
+  const { brandId } = req.params;
 
-  if (!checkIsId(id)) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      message: 'Id is not valid',
-      success: false,
-    });
-  }
+  const result = await getBrandByIdService(brandId);
 
-  const brand = await Brand.findById(id);
-
-  if (!brand) {
+  if (!result) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       message: 'Cannot get brand',
       success: false,
@@ -128,25 +77,18 @@ export const getOneBrand = async (req, res) => {
   return res.status(HTTP_STATUS.OK).json({
     message: 'Get brand successfully',
     success: true,
-    data: brand,
+    brand: result,
   });
 };
 
 /* Update brand */
 export const updateBrand = async (req, res) => {
-  const id = req.params.brandId;
+  const { brandId } = req.params;
   const body = req.body;
 
-  if (!checkIsId(id)) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      message: 'Id is not valid',
-      success: false,
-    });
-  }
+  const result = await updateBrandService(brandId, body);
 
-  const brand = await Brand.findByIdAndUpdate(id, body, { new: true });
-
-  if (!brand) {
+  if (!result) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       message: 'Cannot update brand',
       success: false,
@@ -156,6 +98,6 @@ export const updateBrand = async (req, res) => {
   return res.status(HTTP_STATUS.OK).json({
     message: 'Update brand successfully',
     success: true,
-    data: brand,
+    brand: result,
   });
 };

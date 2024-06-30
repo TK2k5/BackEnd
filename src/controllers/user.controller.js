@@ -3,6 +3,7 @@ import { handleComparePassword, handleHashPassword } from '../utils/hash-passwor
 
 import { HTTP_STATUS } from '../common/http-status.common.js';
 import User from '../models/user.model.js';
+import { updateUserService } from '../services/user.service.js';
 
 export const changePasswordController = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
@@ -107,8 +108,21 @@ export const updateStatus = async (req, res) => {
 
   const result = await updateStatusUser(userId, status);
   if (!result) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update status faild!', success: false });
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update status failed!', success: false });
   }
 
   return res.status(HTTP_STATUS.OK).json({ message: 'Update status success!', success: true });
+};
+
+// update profile
+export const updateProfile = async (req, res) => {
+  const { _id } = req.user;
+  const body = req.body;
+
+  const user = await updateUserService(_id, body);
+  if (!user) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update profile failed!', success: false });
+  }
+
+  return res.status(HTTP_STATUS.OK).json({ message: 'Update profile success!', success: true });
 };

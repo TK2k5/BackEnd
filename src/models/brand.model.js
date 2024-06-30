@@ -9,12 +9,26 @@ const brandSchema = new mongoose.Schema(
     },
     country: {
       type: String,
-      required: true,
+      default: 'Viet Nam',
     },
     desc: {
       type: String,
-      required: false,
     },
+    image: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      default: 'active',
+      enum: ['active', 'inactive'],
+    },
+    products: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+      },
+    ],
   },
   {
     versionKey: false,

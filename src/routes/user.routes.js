@@ -1,8 +1,14 @@
-import { changePasswordController, getUserInfo, getUsers, updateStatus } from '../controllers/user.controller.js';
+import {
+  changePasswordController,
+  getUserInfo,
+  getUsers,
+  updateProfile,
+  updateStatus,
+} from '../controllers/user.controller.js';
+import { validationChangePassword, validationUpdateProfile } from '../middlewares/user.middleware.js';
 
 import { checkPermission } from '../middlewares/check-permission.middleware.js';
 import express from 'express';
-import { validationChangePassword } from '../middlewares/user.middleware.js';
 import { verifyToken } from '../middlewares/verify-token.middleware.js';
 import { wrapRequestHandler } from '../utils/handler.util.js';
 
@@ -33,6 +39,14 @@ router.patch(
   wrapRequestHandler(verifyToken),
   wrapRequestHandler(checkPermission),
   wrapRequestHandler(updateStatus),
+);
+
+// update profile
+router.patch(
+  '/me',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(validationUpdateProfile),
+  wrapRequestHandler(updateProfile),
 );
 
 export default router;
