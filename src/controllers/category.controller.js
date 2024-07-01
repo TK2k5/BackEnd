@@ -32,9 +32,9 @@ export const getCategories = async (_, res) => {
 
 // get category by id
 export const getCategoryById = async (req, res) => {
-  const { id } = req.params;
+  const { categoryId } = req.params;
 
-  const result = await getCategoryByIdService(id);
+  const result = await getCategoryByIdService(categoryId);
   if (!result) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Get cateogry faild!', success: false });
   }
@@ -44,10 +44,10 @@ export const getCategoryById = async (req, res) => {
 
 // update category
 export const updateCategory = async (req, res) => {
-  const { id } = req.params;
+  const { categoryId } = req.params;
   const body = req.body;
 
-  const result = await updateCategoryService(id, body);
+  const result = await updateCategoryService(categoryId, body);
   if (!result) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update category faild!', success: false });
   }

@@ -19,10 +19,10 @@ router.post(
 // get all
 router.get('/category', wrapRequestHandler(getCategories));
 // get by id
-router.get('/category/:id', wrapRequestHandler(getCategoryById));
+router.get('/category/:categoryId', wrapRequestHandler(getCategoryById));
 // update
 router.patch(
-  '/category/:id',
+  '/category/:categoryId',
   wrapRequestHandler(verifyToken),
   wrapRequestHandler(checkPermission),
   wrapRequestHandler(updateCategory),
