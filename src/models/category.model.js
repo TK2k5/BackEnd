@@ -16,10 +16,16 @@ const categorySchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    image: {
-      type: String,
-      required: true,
-    },
+    images: [
+      {
+        url: {
+          type: String,
+        },
+        public_id: {
+          type: String,
+        },
+      },
+    ],
     products: [
       {
         type: mongoose.Schema.Types.ObjectId,

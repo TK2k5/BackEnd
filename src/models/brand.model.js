@@ -14,10 +14,16 @@ const brandSchema = new mongoose.Schema(
     desc: {
       type: String,
     },
-    image: {
-      type: String,
-      required: true,
-    },
+    images: [
+      {
+        url: {
+          type: String,
+        },
+        public_id: {
+          type: String,
+        },
+      },
+    ],
     status: {
       type: String,
       default: 'active',

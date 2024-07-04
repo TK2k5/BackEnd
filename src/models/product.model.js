@@ -10,15 +10,8 @@ const sizeSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-});
-
-const colorSchema = new mongoose.Schema({
   color: {
     type: String,
-    required: true,
-  },
-  quantity: {
-    type: Number,
     required: true,
   },
 });
@@ -38,23 +31,26 @@ const productSchema = new mongoose.Schema(
     },
     brand: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Brand',
+      ref: 'brand',
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category',
+      ref: 'category',
     },
     status: {
       type: String,
       enum: ['active', 'inactive'],
       default: 'active',
     },
-    colors: [colorSchema],
     sizes: [sizeSchema],
     images: [
       {
-        type: String,
-        required: true,
+        url: {
+          type: String,
+        },
+        public_id: {
+          type: String,
+        },
       },
     ],
   },

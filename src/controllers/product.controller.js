@@ -4,22 +4,28 @@ import {
   checkIsExistCategory,
   deleteIdProductFromCategory,
 } from '../services/category.service.js';
-import {
-  checkIsExistProduct,
-  createProductService,
-  deleteProductService,
-  getAllProducts,
-  getProductByIdService,
-  updateProductService,
-} from '../services/product.service.js';
+import { checkIsExistProduct, productService } from '../services/product.service.js';
 
 import { HTTP_STATUS } from '../common/http-status.common.js';
+
+// option product
+export const optionProduct = (params) => {
+  const options = {
+    page: _page,
+    limit: _limit,
+    populate: [
+      { path: 'category', select: '_id nameCategory images desc' },
+      { path: 'brand', select: '_id nameBrand images desc' },
+      ...params.populate,
+    ],
+  };
+};
 
 // create Product
 export const createProduct = async (req, res) => {
   const body = req.body;
 
-  const newProduct = await createProductService(body);
+  const newProduct = await productService.addProduct(body);
   if (!newProduct) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Create Product faild!', success: false });
   }
@@ -54,26 +60,55 @@ export const createProduct = async (req, res) => {
 };
 
 // get Products
-export const getProducts = async (_, res) => {
-  const result = await getAllProducts();
+export const getProducts = async (req, res) => {
+  const params = req.query;
+  const { _page = 1, _limit = 10, q } = params;
+  const options = {
+    page: _page,
+    limit: _limit,
+    populate: [
+      { path: 'category', select: '_id nameCategory images desc' },
+      { path: 'brand', select: '_id nameBrand images desc' },
+    ],
+  };
+  const query = q
+    ? {
+        $and: [
+          {
+            $or: [
+              { nameProduct: { $regex: new RegExp(q), $options: 'i' } },
+              { image: { $regex: new RegExp(q), $options: 'i' } },
+            ],
+          },
+        ],
+      }
+    : {};
+
+  const result = await productService.getAllProducts(query, options);
 
   if (!result) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Get Products faild!', success: false });
   }
 
-  return res.status(HTTP_STATUS.OK).json({ message: 'Get Products success!', success: true, data: result });
+  return res.status(HTTP_STATUS.OK).json({ message: 'Get Products success!', success: true, ...result });
 };
 
 // get category by id
 export const getProductById = async (req, res) => {
   const { productId } = req.params;
 
-  const result = await getProductByIdService(productId);
+  const result = await productService.getProductById(productId);
   if (!result) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Get cateogry faild!', success: false });
   }
 
   return res.status(HTTP_STATUS.OK).json({ message: 'Get cateogry success!', success: true, data: result });
+};
+
+export const getProductWithStatus = async (req, res) => {
+  const { status } = req.query;
+
+  getProductById();
 };
 
 // update Product
@@ -110,7 +145,7 @@ export const updateProduct = async (req, res) => {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Delete product id failed!', success: false });
   }
 
-  const result = await updateProductService(productId, body);
+  const result = await productService.updateProduct(productId, body);
   if (!result) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update Product faild!', success: false });
   }
@@ -167,7 +202,7 @@ export const deleteProduct = async (req, res) => {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Delete product id failed!', success: false });
   }
 
-  const product = await deleteProductService(productId);
+  const product = await productService.deleteProduct(productId);
 
   if (!product) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Delete product failed!', success: false });

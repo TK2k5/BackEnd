@@ -1,40 +1,37 @@
 import Product from '../models/product.model.js';
 
-// create brand
-export const createProductService = async (body) => {
-  const newProduct = await Product.create(body);
+export const productService = {
+  // create brand
+  addProduct: async (body) => {
+    return await Product.create(body);
+  },
 
-  return newProduct;
-};
+  // get all Product
+  getAllProducts: async (query, options) => {
+    return await Product.paginate(query, options);
+  },
 
-// get all Product
-export const getAllProducts = async () => {
-  const product = await Product.find();
+  // update Product
+  updateProduct: async (id, body) => {
+    return await Product.findByIdAndUpdate({ _id: id }, body, { new: true });
+  },
 
-  return product;
+  // delete product
+  deleteProduct: async (id) => {
+    return await Product.findByIdAndDelete(id);
+  },
+
+  // get Product by id
+  getProductById: async (id) => {
+    return await Product.findById({ _id: id }).populate([
+      { path: 'category', select: '_id nameCategory images desc' },
+      { path: 'brand', select: '_id nameBrand images desc' },
+    ]);
+  },
 };
 
 // check product is exist
 export const checkIsExistProduct = async (id) => {
-  const product = await Product.findById({ _id: id });
-
-  return product;
-};
-
-// update Product
-export const updateProductService = async (id, body) => {
-  const product = await Product.findByIdAndUpdate({ _id: id }, body, { new: true });
-  return product;
-};
-
-export const deleteProductService = async (id) => {
-  const product = await Product.findByIdAndDelete(id);
-
-  return product;
-};
-
-// get Product by id
-export const getProductByIdService = async (id) => {
   const product = await Product.findById({ _id: id });
 
   return product;
