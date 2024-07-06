@@ -10,16 +10,75 @@ import { HTTP_STATUS } from '../common/http-status.common.js';
 
 // option product
 export const optionProduct = (params) => {
+  const { _limit = 10, _page = 1, q, populate, ...rest } = params;
+
+  const populateDefault = [
+    { path: 'category', select: '_id nameCategory images desc' },
+    { path: 'brand', select: '_id nameBrand images desc' },
+  ];
+
+  if (populate) {
+    if (Array.isArray(populate)) {
+      populateDefault = [...populateDefault, ...populate];
+    } else {
+      populateDefault.push(populate);
+    }
+  }
+
+  let query = {};
+  if (q) {
+    query = {
+      $and: [
+        {
+          $or: [{ nameProduct: { $regex: new RegExp(q), $options: 'i' } }],
+        },
+      ],
+    };
+  }
+
+  // filter status
+  if (rest.status) {
+    query = {
+      ...query,
+      status: rest.status,
+    };
+  }
+  // filter deleted
+  if (rest.deleted) {
+    query = {
+      ...query,
+      is_deleted: rest.deleted === 'true' ? true : false,
+    };
+  }
+
   const options = {
-    page: _page,
-    limit: _limit,
-    populate: [
-      { path: 'category', select: '_id nameCategory images desc' },
-      { path: 'brand', select: '_id nameBrand images desc' },
-      ...params.populate,
-    ],
+    limit: parseInt(_limit),
+    page: parseInt(_page),
+    populate: populateDefault,
   };
+
+  return { options, query };
 };
+
+// query product
+// export const queryProduct = (params) => {
+//   const { q } = params;
+
+//   let query = {};
+//   if (q) {
+//     query = {
+//       $and: [
+//         {
+//           $or: [
+//             { nameProduct: { $regex: new RegExp(q), $options: 'i' } },
+//             { image: { $regex: new RegExp(q), $options: 'i' } },
+//           ],
+//         },
+//       ],
+//     };
+//   }
+//   return query;
+// };
 
 // create Product
 export const createProduct = async (req, res) => {
@@ -61,36 +120,20 @@ export const createProduct = async (req, res) => {
 
 // get Products
 export const getProducts = async (req, res) => {
-  const params = req.query;
-  const { _page = 1, _limit = 10, q } = params;
-  const options = {
-    page: _page,
-    limit: _limit,
-    populate: [
-      { path: 'category', select: '_id nameCategory images desc' },
-      { path: 'brand', select: '_id nameBrand images desc' },
-    ],
-  };
-  const query = q
-    ? {
-        $and: [
-          {
-            $or: [
-              { nameProduct: { $regex: new RegExp(q), $options: 'i' } },
-              { image: { $regex: new RegExp(q), $options: 'i' } },
-            ],
-          },
-        ],
-      }
-    : {};
+  const { _page = 1, _limit = 10, q } = req.query;
+  const { options, query } = optionProduct({ _limit, _page, q });
 
-  const result = await productService.getAllProducts(query, options);
+  // const result = queryProduct({
+  //   q,
+  // });
 
-  if (!result) {
+  const product = await productService.getAllProducts(query, options);
+
+  if (!product) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Get Products faild!', success: false });
   }
 
-  return res.status(HTTP_STATUS.OK).json({ message: 'Get Products success!', success: true, ...result });
+  return res.status(HTTP_STATUS.OK).json({ message: 'Get Products success!', success: true, ...product });
 };
 
 // get category by id
@@ -103,12 +146,6 @@ export const getProductById = async (req, res) => {
   }
 
   return res.status(HTTP_STATUS.OK).json({ message: 'Get cateogry success!', success: true, data: result });
-};
-
-export const getProductWithStatus = async (req, res) => {
-  const { status } = req.query;
-
-  getProductById();
 };
 
 // update Product
@@ -209,4 +246,48 @@ export const deleteProduct = async (req, res) => {
   }
 
   return res.status(HTTP_STATUS.OK).json({ message: 'Delete product successfully!', success: true, data: product });
+};
+
+// get product with status
+export const getProductWithStatus = async (req, res) => {
+  const { _page = 1, _limit = 10, q } = req.query;
+  const { status, deleted } = req.params;
+  const { options, query } = optionProduct({ _limit, _page, q, status, deleted });
+
+  const product = await productService.getAllProducts(query, options);
+
+  if (!product) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Get Products faild!', success: false });
+  }
+
+  return res.status(HTTP_STATUS.OK).json({ message: 'Get Products success!', success: true, ...product });
+};
+
+// update status
+export const updateStatus = async (req, res) => {
+  const { productId } = req.params;
+  const { is_deleted, status } = req.query;
+
+  const deleted = is_deleted === 'true' ? true : false;
+  const statusProduct = status === 'active' ? 'active' : 'inactive';
+
+  if (is_deleted && status) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update is_deleted and status failed', success: false });
+  }
+
+  if (is_deleted) {
+    const product = await productService.updateDeleted(productId, deleted);
+    if (!product) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update is_deleted failed', success: false });
+    }
+
+    return res.status(HTTP_STATUS.OK).json({ message: 'Update is_deleted successfully', success: true, data: product });
+  }
+
+  const product = await productService.updateStatus(productId, statusProduct);
+  if (!product) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Update status failed', success: false });
+  }
+
+  return res.status(HTTP_STATUS.OK).json({ message: 'Update status successfully', success: true, data: product });
 };

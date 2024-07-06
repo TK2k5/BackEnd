@@ -53,6 +53,10 @@ const productSchema = new mongoose.Schema(
         },
       },
     ],
+    is_deleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     versionKey: false,

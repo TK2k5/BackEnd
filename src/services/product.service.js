@@ -28,6 +28,15 @@ export const productService = {
       { path: 'brand', select: '_id nameBrand images desc' },
     ]);
   },
+
+  // update status
+  updateStatus: async (productId, status) => {
+    return await Product.findByIdAndUpdate({ _id: productId }, { status }, { new: true });
+  },
+  // update is_deleted
+  updateDeleted: async (productId, is_deleted) => {
+    return await Product.findByIdAndUpdate({ _id: productId }, { is_deleted }, { new: true });
+  },
 };
 
 // check product is exist
