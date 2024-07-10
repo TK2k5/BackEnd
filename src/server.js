@@ -1,8 +1,10 @@
 import * as dotenv from 'dotenv';
 
+import apiDocumention from './docs/apidoc.doc.js';
 import connectDb from './configs/connect-db.config.js';
 import express from 'express';
 import rootRoutes from './routes/index.js';
+import swaggerUi from 'swagger-ui-express';
 
 dotenv.config();
 
@@ -17,6 +19,9 @@ app.get('/', (_, res) => {
 
 // connect mongoDb
 connectDb();
+
+// doc swagger
+app.use('/documents', swaggerUi.serve, swaggerUi.setup(apiDocumention));
 
 // routes
 app.use('/api/v1', rootRoutes);
