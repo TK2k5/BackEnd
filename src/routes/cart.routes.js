@@ -6,11 +6,15 @@ import { wrapRequestHandler } from '../utils/handler.util.js';
 
 const router = express.Router();
 
+// add to cart
 router.post(
   '/cart',
   wrapRequestHandler(verifyToken),
   wrapRequestHandler(addToCartMiddleware),
   wrapRequestHandler(cartController.addCart),
 );
+
+// get carts by userId
+router.get('/cart', wrapRequestHandler(verifyToken), wrapRequestHandler(cartController.getCartByUserId));
 
 export default router;
