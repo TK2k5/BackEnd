@@ -71,7 +71,7 @@ export const cartController = {
         if (productExitInCart[i].color === product.color && productExitInCart[i].size === product.size) {
           productExitInCart[i].quantity += product.quantity;
           // tính tổng tiền
-          const total = cartController.totalCalculate(productExist, productExitInCart[i]);
+          const total = cartController.totalCalculate(productExist, product);
           result.total = total;
           await result.save();
           return res.status(HTTP_STATUS.OK).json({
@@ -82,21 +82,20 @@ export const cartController = {
       }
 
       // nếu không trùng thì thêm mới vào giỏ hàng
-      if (productExitInCart.color !== product.color || productExitInCart.size !== product.size) {
-        // thêm sản phẩm vào giỏ hàng
-        carts.push(product);
 
-        // tính tổng tiền
-        const total = cartController.totalCalculate(productExist, product);
+      // thêm sản phẩm vào giỏ hàng
+      carts.push(product);
 
-        result.total += total;
-        await result.save();
+      // tính tổng tiền
+      const total = cartController.totalCalculate(productExist, product);
 
-        return res.status(HTTP_STATUS.OK).json({
-          message: 'Add to cart successfully',
-          success: true,
-        });
-      }
+      result.total += total;
+      await result.save();
+
+      return res.status(HTTP_STATUS.OK).json({
+        message: 'Add to cart successfully',
+        success: true,
+      });
     }
 
     // nếu chưa chưa tồn tại thêm mới vào giỏ hàng
