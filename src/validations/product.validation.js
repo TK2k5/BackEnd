@@ -32,4 +32,5 @@ export const productValidation = joi.object({
       public_id: joi.string().required(),
     }),
   ),
+  sale: joi.number().default(0),
 });
