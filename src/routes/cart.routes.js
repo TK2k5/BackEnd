@@ -26,4 +26,9 @@ router.get(
   wrapRequestHandler(cartController.getAllCarts),
 );
 
+// update quantity product in cart
+router.patch('/cart', wrapRequestHandler(verifyToken), wrapRequestHandler(cartController.updateQuantityProductInCart));
+
+// delete product in cart
+router.delete('/cart', wrapRequestHandler(verifyToken), wrapRequestHandler(cartController.deleteProductInCart));
 export default router;
