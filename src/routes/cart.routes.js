@@ -32,3 +32,6 @@ router.patch('/cart', wrapRequestHandler(verifyToken), wrapRequestHandler(cartCo
 // delete product in cart
 router.delete('/cart', wrapRequestHandler(verifyToken), wrapRequestHandler(cartController.deleteProductInCart));
 export default router;
+
+// async to cart
+router.post('/cart/async', wrapRequestHandler(verifyToken), wrapRequestHandler(cartController.asyncToCart));

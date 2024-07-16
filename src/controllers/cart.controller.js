@@ -6,6 +6,50 @@ import { checkUserExist } from '../services/user.service.js';
 import { productService } from '../services/product.service.js';
 
 export const cartController = {
+  // check product có trong cart hay ko
+  checkProductInCart: (carts, productIdInCart) => {
+    const productInCart = carts.find((item) => item._id.toString() === productIdInCart);
+
+    return productInCart;
+  },
+
+  // check user match with user token
+  checkUserToken: (userId, id, res) => {
+    // check userId gửi lên có trùng với userId trong token không
+    if (userId !== id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        message: 'Unauthorized',
+        success: false,
+      });
+    }
+  },
+
+  // check role và params
+  checkRoleIsAdmin: (role, params, res) => {
+    // kiểm tra role của user và check params có là 1 obejct rỗng hay không
+    if (role !== TypeRole.ADMIN && Object.keys(params).length > 0) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        message: 'You do not have permission to access',
+        success: false,
+      });
+    }
+  },
+
+  // check user có tồn tại không
+  checkUserIsExist: async (userId) => {
+    // check user tồn tại hay không
+    const userExist = await checkUserExist(userId);
+
+    return userExist;
+  },
+
+  // check product có tồn tại ko
+  checkProductIsExist: async (productId) => {
+    const productExist = await productService.getProductById(productId);
+
+    return productExist;
+  },
+
   // total calculate
   totalCalculate: (productExist, product) => {
     const total =
@@ -23,15 +67,11 @@ export const cartController = {
     const { userId, ...product } = body;
 
     // check userId gửi lên có trùng với userId trong token không
-    if (userId !== _id) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: 'Unauthorized',
-        success: false,
-      });
-    }
+    cartController.checkUserToken(userId, _id, res);
 
     // check user tồn tại hay không
-    const userExist = await checkUserExist(userId);
+    const userExist = await cartController.checkUserIsExist(userId);
+
     if (!userExist) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         message: 'User not found',
@@ -39,7 +79,8 @@ export const cartController = {
       });
     }
     // check product tồn tại hay không
-    const productExist = await productService.getProductById(product.productId);
+    const productExist = await cartController.checkProductIsExist(product.productId);
+
     if (!productExist) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         message: 'Product not found',
@@ -133,12 +174,7 @@ export const cartController = {
 
     let query = {};
     // kiểm tra role của user vaf check params có là 1 obejct rỗng hay không
-    if (role !== TypeRole.ADMIN && Object.keys(params).length > 0) {
-      return res.status(HTTP_STATUS.FORBIDDEN).json({
-        message: 'You do not have permission to access',
-        success: false,
-      });
-    }
+    cartController.checkRoleIsAdmin(role, params, res);
 
     if (statusUser) {
       query = { status: statusUser };
@@ -182,12 +218,7 @@ export const cartController = {
 
     let query = {};
     // kiểm tra role của user vaf check params có là 1 obejct rỗng hay không
-    if (role !== TypeRole.ADMIN && Object.keys(params).length > 0) {
-      return res.status(HTTP_STATUS.FORBIDDEN).json({
-        message: 'You do not have permission to access',
-        success: false,
-      });
-    }
+    cartController.checkRoleIsAdmin(role, params, res);
 
     if (q) {
       query = {
@@ -219,15 +250,11 @@ export const cartController = {
     const { status } = req.query;
 
     // check userId gửi lên có trùng với userId trong token không
-    if (userId !== _id) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: 'Unauthorized',
-        success: false,
-      });
-    }
+    cartController.checkUserToken(userId, _id, res);
 
     // check user tồn tại hay không
-    const userExist = await checkUserExist(userId);
+    const userExist = cartController.checkUserIsExist(userId);
+
     if (!userExist) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         message: 'User not found',
@@ -236,7 +263,7 @@ export const cartController = {
     }
 
     // check product tồn tại hay không
-    const productExist = await productService.getProductById(productId);
+    const productExist = cartController.checkProductIsExist(productId);
     if (!productExist) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         message: 'Product not found',
@@ -255,7 +282,8 @@ export const cartController = {
 
     const { carts } = result;
 
-    const productInCart = carts.find((item) => item._id.toString() !== productIdInCart);
+    // check productInCart tồn tại trong giỏ hàng hay không
+    const productInCart = cartController.checkProductInCart(carts, productIdInCart);
     if (!productInCart) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         message: 'Product not found',
@@ -303,7 +331,7 @@ export const cartController = {
         success: true,
       });
     } else {
-      // tăng số lượng
+      // giảm số lượng
       carts.forEach((item) => {
         if (item._id.toString() === productIdInCart) {
           item.quantity -= 1;
@@ -340,18 +368,12 @@ export const cartController = {
     const { _id } = req.user;
     const body = req.body;
     const { userId, productIdInCart } = body;
-    const { status } = req.query;
 
     // check userId gửi lên có trùng với userId trong token không
-    if (userId !== _id) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: 'Unauthorized',
-        success: false,
-      });
-    }
+    cartController.checkUserToken(userId, _id, res);
 
     // check user tồn tại hay không
-    const userExist = await checkUserExist(userId);
+    const userExist = cartController.checkUserIsExist(userId);
     if (!userExist) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         message: 'User not found',
@@ -371,7 +393,7 @@ export const cartController = {
     const { carts } = result;
 
     //check product có tồn tại hay ko
-    const productInCart = carts.find((item) => item._id.toString() === productIdInCart);
+    const productInCart = cartController.checkProductInCart(carts, productIdInCart);
     if (!productInCart) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         message: 'Product not found',
@@ -383,7 +405,7 @@ export const cartController = {
     result.carts = carts.filter((item) => item._id.toString() !== productIdInCart);
 
     // check product tồn tại hay không
-    const productExist = await productService.getProductById(productInCart.productId);
+    const productExist = await cartController.checkProductIsExist(productInCart.productId);
     if (!productExist) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         message: 'Product not found',
@@ -409,19 +431,14 @@ export const cartController = {
     });
   },
 
-  // Async to cart
+  // async to cart
   asyncToCart: async (req, res) => {
     const { _id } = req.user;
     const body = req.body;
-    const { userId, carts: cartLocalUser, total: cartTotalUser } = body;
+    const { userId, carts: cartLocalUser, total: totalLocalUser } = body;
 
     // check userId gửi lên có trùng với userId trong token không
-    if (userId !== _id) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: 'Unauthorized',
-        success: false,
-      });
-    }
+    cartController.checkUserToken(userId, _id, res);
 
     // check user tồn tại hay không
     const userExist = await checkUserExist(userId);
@@ -432,37 +449,85 @@ export const cartController = {
       });
     }
 
+    const productExist = [];
+    for (var i = 0; i < cartLocalUser.length; i++) {
+      productExist[i] = await cartController.checkProductIsExist(cartLocalUser[i].productId);
+      if (!productExist) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          message: 'Product not found',
+          success: false,
+        });
+      }
+    }
+
     // lấy giỏ hàng của user
-    const result = await cartService.getCartsByUserId({ userId });
+    const result = await cartService.getCartsByUserId({
+      userId,
+    });
     if (!result) {
-      // tạo giỏ hàng mới
+      // tạo mới giỏ hàng
       const newCart = await cartService.createCart(userId, []);
 
       // thêm sản phẩm vào giỏ hàng
       newCart.carts.push(...cartLocalUser);
 
       // tính tổng tiền
-      newCart.total += cartTotalUser;
+      newCart.total += totalLocalUser;
 
       await newCart.save();
       return res.status(HTTP_STATUS.OK).json({
-        message: 'Add cart successfully',
+        message: 'Add to cart successfully',
         success: true,
       });
     }
 
-    // lấy giỏ hàng
+    // lấy giỏ hàng của user nếu user đã có giỏ hàng
     const { carts } = result;
 
-    // thêm vào giỏ hàng
-    carts.push(...cartLocalUser);
+    let isMax = false;
+    for (let i = 0; i < cartLocalUser.length; i++) {
+      // check product đã có trong giỏ hàng hay chưa
+      const productInCart = carts.find(
+        (item) =>
+          item.productId.toString() === cartLocalUser[i].productId &&
+          item.color === cartLocalUser[i].color &&
+          item.size === cartLocalUser[i].size,
+      );
 
-    // tính lại tổng tiền
-    carts.total += cartTotalUser;
+      if (productInCart) {
+        const sizeExist = [];
+        productInCart.quantity += cartLocalUser[i].quantity;
+        sizeExist[i] = productExist[i].sizes.find(
+          (size) => size.size === carts[i].size && size.color === carts[i].color,
+        );
+        if (sizeExist && sizeExist[i].quantity < carts[i].quantity) {
+          carts[i].quantity -= 1;
+          isMax = true;
+        }
 
-    await newCart.save();
+        // tính lại tổng tiền
+        if (!isMax) {
+          carts.total += totalLocalUser;
+        }
+      } else {
+        carts.push(cartLocalUser[i]);
+      }
+    }
+
+    if (isMax) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        message: 'The quantity is greater than in stock',
+        success: false,
+      });
+    }
+
+    // tính tổng tiền
+    result.total += totalLocalUser;
+
+    await result.save();
+
     return res.status(HTTP_STATUS.OK).json({
-      message: 'Add cart successfully',
+      message: 'Add to cart successfully',
       success: true,
     });
   },
