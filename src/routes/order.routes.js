@@ -26,4 +26,11 @@ router.get(
   wrapRequestHandler(orderController.getAllOrders),
 );
 
+// lấy order từ email
+router.get(
+  '/order',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  wrapRequestHandler(orderController.getOrderByEmail),
+);
 export default router;

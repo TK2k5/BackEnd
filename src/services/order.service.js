@@ -18,4 +18,12 @@ export const orderService = {
   getAllOrders: async (query, option) => {
     return await Order.paginate(query, option);
   },
+
+  // get order by email
+  getOrderByEmail: async (email) => {
+    return await Order.find({ 'infoOrderShipping.email': email }).populate([
+      { path: 'products.productId', select: '_id nameProduct desc images' },
+      { path: 'userId', select: '_id email' },
+    ]);
+  },
 };

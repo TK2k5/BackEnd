@@ -17,6 +17,7 @@ export const orderController = {
       }
     }
     let query = {};
+    console.log('🚀 ~ query:', query);
     if (q) {
       query = {
         $and: [
@@ -41,6 +42,7 @@ export const orderController = {
     };
     return { option, query };
   },
+
   // create order
   createOrder: async (req, res) => {
     const { _id } = req.user;
@@ -90,11 +92,6 @@ export const orderController = {
       status,
     });
 
-    // startDate: 2024-07-16T14:36:52.972+00:00
-    // endDate: 2024-07-16T14:36:52.972+00:00
-    // datediff = endDate - startDate => dayjs(endDate).diff(dayjs(startDate), 'day')
-    // tiềm kieems trong db createdAt >= startDate && createdAt <= endDate
-
     const orders = await orderService.getAllOrders(query, option);
 
     if (!orders) {
@@ -103,7 +100,17 @@ export const orderController = {
 
     return res.status(HTTP_STATUS.OK).json({ message: 'Get order success!', success: true, ...orders });
   },
-};
 
-// date: dayjs, moment, date-fns
-// tìm kiếm đơn hàng dựa vào startDate, endDate & email
+  // get order by email
+  getOrderByEmail: async (req, res) => {
+    const { email } = req.query;
+
+    const order = await orderService.getOrderByEmail(email);
+
+    if (!order) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Order not found!', success: false });
+    }
+
+    return res.status(HTTP_STATUS.OK).json({ message: 'Get order success!', success: true, ...order });
+  },
+};
