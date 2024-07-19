@@ -41,4 +41,14 @@ export const orderService = {
   updateOrder: async (_id, body) => {
     return await Order.findByIdAndUpdate(_id, body, { new: true });
   },
+
+  // get order by day
+  getOrderByDay: async (startDate, endDate) => {
+    return await Order.find({
+      createdAt: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+  },
 };

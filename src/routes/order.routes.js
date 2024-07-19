@@ -41,4 +41,12 @@ router.patch(
   wrapRequestHandler(checkPermission),
   wrapRequestHandler(orderController.updateOrder),
 );
+
+// get order by day
+router.get(
+  '/orderDay',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  wrapRequestHandler(orderController.getOrderByDay),
+);
 export default router;

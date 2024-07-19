@@ -1,4 +1,5 @@
 import { HTTP_STATUS } from '../common/http-status.common.js';
+import dayjs from 'dayjs';
 import { orderService } from '../services/order.service.js';
 
 export const orderController = {
@@ -190,5 +191,21 @@ export const orderController = {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Cập nhật đơn hàng thất bại!', success: false });
     }
     return res.status(HTTP_STATUS.OK).json({ message: 'Cập nhật đơn hàng thành công!', success: true });
+  },
+
+  // get order by day
+  getOrderByDay: async (req, res) => {
+    const { startDate, endDate } = req.query;
+
+    const startDateF = dayjs(startDate).toDate();
+    const endDateF = dayjs(endDate).toDate();
+
+    const order = await orderService.getOrderByDay(startDateF, endDateF);
+
+    if (!order) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Order not found!', success: false });
+    }
+
+    return res.status(HTTP_STATUS.OK).json({ message: 'Get order success!', success: true, ...order });
   },
 };
