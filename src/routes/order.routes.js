@@ -33,4 +33,12 @@ router.get(
   wrapRequestHandler(checkPermission),
   wrapRequestHandler(orderController.getOrderByEmail),
 );
+
+// update status đơn hàng
+router.patch(
+  '/order/:orderId',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  wrapRequestHandler(orderController.updateOrder),
+);
 export default router;

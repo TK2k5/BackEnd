@@ -86,6 +86,10 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    reasonCancel: {
+      type: String,
+      default: '',
+    },
   },
   {
     versionKey: false,

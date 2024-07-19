@@ -11,6 +11,7 @@ export const orderService = {
     return await Order.find({ userId }).populate([
       { path: 'products.productId', select: '_id nameProduct desc images' },
       { path: 'userId', select: '_id email' },
+      { path: 'assignee' },
     ]);
   },
 
@@ -25,5 +26,19 @@ export const orderService = {
       { path: 'products.productId', select: '_id nameProduct desc images' },
       { path: 'userId', select: '_id email' },
     ]);
+  },
+
+  // get order by id
+  getOrderById: async (orderId) => {
+    return await Order.findById(orderId).populate([
+      { path: 'products.productId', select: '_id nameProduct desc images' },
+      { path: 'userId', select: '_id email' },
+      { path: 'assignee', select: '_id email avatar role status' },
+    ]);
+  },
+
+  // update status order
+  updateOrder: async (_id, body) => {
+    return await Order.findByIdAndUpdate(_id, body, { new: true });
   },
 };
