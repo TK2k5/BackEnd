@@ -1,4 +1,5 @@
 import Order from '../models/order.model.js';
+import Product from '../models/product.model.js';
 
 export const orderService = {
   // create Order
@@ -50,5 +51,14 @@ export const orderService = {
         $lte: endDate,
       },
     });
+  },
+
+  // update quantity product when order
+  updateQuantityProduct: async (productId, sizeId, quantity) => {
+    return await Product.findOneAndUpdate(
+      { _id: productId, 'sizes._id': sizeId },
+      { $set: { 'sizes.$.quantity': quantity } },
+      { new: true },
+    );
   },
 };

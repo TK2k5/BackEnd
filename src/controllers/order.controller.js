@@ -1,6 +1,7 @@
 import { HTTP_STATUS } from '../common/http-status.common.js';
 import dayjs from 'dayjs';
 import { orderService } from '../services/order.service.js';
+import { productService } from '../services/product.service.js';
 
 export const orderController = {
   optionOrder: (params) => {
@@ -58,6 +59,22 @@ export const orderController = {
     if (!newOrder) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Create category faild!', success: false });
     }
+
+    // trừ đi số lượng sản phẩm trong kho
+    newOrder.products.forEach(async (product) => {
+      // lấy ra thông tin sản phẩm theo productId
+      const productInfo = await productService.getProductById(product.productId);
+      // tìm ra size và màu của sản phẩm đó và trừ đi số lượng sản phẩm
+      const productSize = productInfo.sizes.find((size) => size.size === product.size && size.color === product.color);
+      if (productSize) {
+        const newQuantity = productSize.quantity - product.quantity;
+        // cập nhật lại số lượng sản phẩm
+        const result = await productService.updateQuantityProduct(product.productId, productSize._id, newQuantity);
+        if (!result) {
+          return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Đặt hàng thất bại!', success: false });
+        }
+      }
+    });
 
     return res.status(HTTP_STATUS.CREATED).json({ message: 'Create category success!', success: true });
   },
@@ -207,5 +224,64 @@ export const orderController = {
     }
 
     return res.status(HTTP_STATUS.OK).json({ message: 'Get order success!', success: true, ...order });
+  },
+
+  // cancel order
+  cancelOrder: async (req, res) => {
+    const { role } = req.user;
+    const { orderId } = req.params;
+    const { message, status } = req.body;
+
+    // lấy ra thông tin đơn hàng theo orderId
+    const order = await orderService.getOrderById(orderId);
+    // check role xem là admin hay user
+    if (role === 'customer') {
+      // check xem userId có trùng nhau không
+      if (order.userId._id.toString() !== req.user._id) {
+        return res
+          .status(HTTP_STATUS.FORBIDDEN)
+          .json({ message: 'Bạn không có quyền hủy đơn hàng này!', success: false });
+      }
+
+      // check status === pending
+      if (order.status !== 'pending') {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Không thể hủy đơn hàng!', success: false });
+      }
+
+      // cập nhật trạng thái đơn hàng và lý do hủy đơn hàng
+      if (status !== 'cancelled' || !message || (message && message.trim() === '')) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ message: 'Vui lòng nhập lý do hủy đơn hàng!', success: false });
+      }
+
+      if (status === 'cancelled' && message.trim() !== '') {
+        const updateOrder = await orderService.updateOrder({ _id: orderId }, { status, reasonCancel: message });
+        if (!updateOrder) {
+          return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Hủy đơn hàng thất bại!', success: false });
+        }
+
+        // cập nhật lại số lượng sản phẩm trong kho
+        order.products.forEach(async (product) => {
+          const productInfo = await productService.getProductById(product.productId);
+          const productSize = productInfo.sizes.find(
+            (size) => size.size === product.size && size.color === product.color,
+          );
+          if (productSize) {
+            const newQuantity = productSize.quantity + product.quantity;
+            // cập nhật lại số lượng sản phẩm
+            const result = await productService.updateQuantityProduct(product.productId, productSize._id, newQuantity);
+            if (!result) {
+              return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Huỷ đơn hàng thất bại!', success: false });
+            }
+          }
+        });
+
+        return res.status(HTTP_STATUS.OK).json({ message: 'Hủy đơn hàng thành công!', success: true });
+      }
+    } else {
+      // check role là customer
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Khong phai customers', success: false });
+    }
   },
 };

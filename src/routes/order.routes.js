@@ -44,9 +44,16 @@ router.patch(
 
 // get order by day
 router.get(
-  '/orderDay',
+  '/order/day',
   wrapRequestHandler(verifyToken),
   wrapRequestHandler(checkPermission),
   wrapRequestHandler(orderController.getOrderByDay),
+);
+
+// router cancel order
+router.patch(
+  '/order/cancel/:orderId',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(orderController.cancelOrder),
 );
 export default router;
