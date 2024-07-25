@@ -7,6 +7,7 @@ import imageRoutes from './upload-image.routes.js';
 import orderRoutes from './order.routes.js';
 import productRoutes from './product.routes.js';
 import userRoutes from './user.routes.js';
+import voucherRoutes from './voucher.routes.js';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ const rootRoutes = [
   imageRoutes,
   cartRoutes,
   orderRoutes,
+  voucherRoutes,
 ];
 
 rootRoutes.map((route) => {
