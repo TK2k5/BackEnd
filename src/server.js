@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 
 import apiDocumention from './docs/apidoc.doc.js';
 import connectDb from './configs/connect-db.config.js';
+import cors from 'cors';
 import express from 'express';
 import rootRoutes from './routes/index.js';
 import swaggerUi from 'swagger-ui-express';
@@ -12,6 +13,12 @@ const app = express();
 
 /* middlewares */
 app.use(express.json());
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  }),
+);
 
 app.get('/', (_, res) => {
   res.send('Hello world');
