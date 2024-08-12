@@ -10,4 +10,5 @@ export const voucherValidation = Joi.object({
   endDate: Joi.date(),
   voucherPrice: Joi.number().integer().default(0),
   applicablePrice: Joi.number().integer().default(0),
+  createdBy: Joi.string().required().default(''),
 });

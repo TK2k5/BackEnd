@@ -1,4 +1,5 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
+
 import mongoosePaginate from 'mongoose-paginate-v2';
 
 const infoOrderShipping = new mongoose.Schema({
@@ -89,6 +90,9 @@ const orderSchema = new mongoose.Schema(
     reasonCancel: {
       type: String,
       default: '',
+    },
+    voucher: {
+      type: String,
     },
   },
   {

@@ -67,4 +67,5 @@ export const orderValidation = Joi.object({
     'any.required': 'priceShipping is required',
     'number.base': 'priceShipping must be a number',
   }),
+  voucher: Joi.string(),
 });

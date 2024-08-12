@@ -2,6 +2,7 @@ import { HTTP_STATUS } from '../common/http-status.common.js';
 import dayjs from 'dayjs';
 import { orderService } from '../services/order.service.js';
 import { productService } from '../services/product.service.js';
+import { voucherService } from '../services/voucher.service.js';
 
 export const orderController = {
   optionOrder: (params) => {
@@ -53,12 +54,40 @@ export const orderController = {
       return res.status(HTTP_STATUS.FORBIDDEN).json({ message: 'Unauthorized!', success: false });
     }
 
+    if (req.body.voucher) {
+      // check voucher is existing
+      const voucher = await voucherService.getVoucherById(req.body.voucher);
+      if (!voucher) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Voucher is not existing!', success: false });
+      }
+
+      // check voucher is expired
+      const now = dayjs();
+      if (now.isAfter(voucher.endDate)) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Voucher is expired!', success: false });
+      }
+
+      // check voucher discount
+      if (voucher.discount <= 0) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Voucher discount is invalid!', success: false });
+      }
+
+      // decrease voucher quantity
+      const updateVoucher = await voucherService.updateVoucher(req.body.voucher, { discount: voucher.discount - 1 });
+
+      if (!updateVoucher) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Voucher is invalid!', success: false });
+      }
+    }
+
     // thêm mới đơn hàng
     const newOrder = await orderService.createOrder(req.body);
 
     if (!newOrder) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Create category faild!', success: false });
     }
+
+    // check voucher
 
     // trừ đi số lượng sản phẩm trong kho
     newOrder.products.forEach(async (product) => {
@@ -69,7 +98,7 @@ export const orderController = {
       if (productSize) {
         const newQuantity = productSize.quantity - product.quantity;
         // cập nhật lại số lượng sản phẩm
-        const result = await productService.updateQuantityProduct(product.productId, productSize._id, newQuantity);
+        const result = await productService.updateProduct(product.productId, productSize._id, newQuantity);
         if (!result) {
           return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Đặt hàng thất bại!', success: false });
         }

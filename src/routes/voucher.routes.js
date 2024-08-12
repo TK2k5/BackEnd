@@ -7,6 +7,7 @@ import { wrapRequestHandler } from '../utils/handler.util.js';
 
 const router = express.Router();
 
+// create voucher
 router.post(
   '/voucher',
   wrapRequestHandler(verifyToken),
@@ -14,5 +15,29 @@ router.post(
   wrapRequestHandler(voucherMiddleware),
   wrapRequestHandler(voucherController.createVoucher),
 );
+
+// get all voucher
+router.get('/voucher', wrapRequestHandler(verifyToken), wrapRequestHandler(voucherController.getAllVouchers));
+
+// update voucher
+router.put(
+  '/voucher/:id',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  wrapRequestHandler(voucherMiddleware),
+  wrapRequestHandler(voucherController.updateVoucher),
+);
+
+// delete voucher
+
+router.patch(
+  '/voucher/:id',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  wrapRequestHandler(voucherController.deleteVoucher),
+);
+
+// get voucher by id
+router.get('/voucher/:id', wrapRequestHandler(verifyToken), wrapRequestHandler(voucherController.getVoucherById));
 
 export default router;
