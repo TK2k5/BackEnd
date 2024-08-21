@@ -10,7 +10,7 @@ import { HTTP_STATUS } from '../common/http-status.common.js';
 
 // option product
 export const optionProduct = (params) => {
-  const { _limit = 10, _page = 1, q, populate, ...rest } = params;
+  const { _limit = 10, _page = 1, q, populate, rest } = params;
 
   const populateDefault = [
     { path: 'category', select: '_id nameCategory images desc' },
@@ -120,8 +120,8 @@ export const createProduct = async (req, res) => {
 
 // get Products
 export const getProducts = async (req, res) => {
-  const { _page = 1, _limit = 10, q } = req.query;
-  const { options, query } = optionProduct({ _limit, _page, q });
+  const { _page = 1, _limit = 10, q, ...rest } = req.query;
+  const { options, query } = optionProduct({ _limit, _page, q, rest });
 
   // const result = queryProduct({
   //   q,
