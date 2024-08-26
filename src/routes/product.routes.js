@@ -1,9 +1,11 @@
 import {
   createProduct,
+  deleteMultiple,
   deleteProduct,
   getProductById,
   getProductWithStatus,
   getProducts,
+  updateManyProduct,
   updateProduct,
   updateStatus,
 } from '../controllers/product.controller.js';
@@ -55,5 +57,21 @@ router.delete(
   wrapRequestHandler(verifyToken),
   wrapRequestHandler(checkPermission),
   wrapRequestHandler(deleteProduct),
+);
+
+// xoá cứng nhiều sản phẩm
+router.delete(
+  `/product-delete-multiple`,
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  deleteMultiple,
+);
+
+// xoá mềm nhiều sản phẩm
+router.patch(
+  `/product-delete-multiple`,
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  updateManyProduct,
 );
 export default router;
