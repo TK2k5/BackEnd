@@ -17,7 +17,7 @@ router.post(
   wrapRequestHandler(createCategory),
 );
 // get all
-router.get('/category', wrapRequestHandler(getCategories));
+router.get('/categories', wrapRequestHandler(getCategories));
 // get by id
 router.get('/category/:categoryId', wrapRequestHandler(getCategoryById));
 // update
