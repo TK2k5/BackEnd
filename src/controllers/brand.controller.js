@@ -37,7 +37,7 @@ export const getBrand = async (_, res) => {
   return res.status(HTTP_STATUS.OK).json({
     message: 'Get brand successfully',
     success: true,
-    brand: result,
+    data: result,
   });
 };
 
