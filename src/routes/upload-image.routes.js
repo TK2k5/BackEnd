@@ -24,7 +24,7 @@ const storage = new CloudinaryStorage({
 const parser = multer({ storage: storage });
 
 router.post(
-  '/image/upload',
+  '/upload-image',
   wrapRequestHandler(verifyToken),
   wrapRequestHandler(checkPermission),
   parser.array('images', 2),
