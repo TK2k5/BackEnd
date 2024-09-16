@@ -24,6 +24,7 @@ export const productValidation = joi.object({
       size: joi.string().required(),
       quantity: joi.number().required(),
       color: joi.string().required(),
+      _id: joi.string(),
     }),
   ),
   images: joi.array().items(
@@ -33,4 +34,5 @@ export const productValidation = joi.object({
     }),
   ),
   sale: joi.number().default(0),
+  _id: joi.string(),
 });

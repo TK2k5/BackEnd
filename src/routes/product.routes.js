@@ -44,7 +44,7 @@ router.patch(
   wrapRequestHandler(updateStatus),
 );
 // update
-router.patch(
+router.put(
   '/product/:productId',
   wrapRequestHandler(verifyToken),
   wrapRequestHandler(checkPermission),
