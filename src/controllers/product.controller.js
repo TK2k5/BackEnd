@@ -57,6 +57,7 @@ export const optionProduct = (params) => {
     limit: parseInt(_limit),
     page: parseInt(_page),
     populate: populateDefault,
+    sort: { createAt: -1 },
   };
 
   return { options, query };
