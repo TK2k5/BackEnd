@@ -327,7 +327,7 @@ export const deleteMultiple = async (req, res) => {
 
 // update many
 export const updateManyProduct = async (req, res) => {
-  const { id: ids } = req.query;
+  const { id: ids, deleted } = req.query;
   if (!ids || !ids.length) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Ids invalid', success: false });
   }
@@ -344,7 +344,7 @@ export const updateManyProduct = async (req, res) => {
   }
 
   // update many id field is_deleted = true
-  const result = await Product.updateMany({ _id: { $in: idsArray } }, { is_deleted: true }, { new: true });
+  const result = await Product.updateMany({ _id: { $in: idsArray } }, { is_deleted: deleted }, { new: true });
 
   if (!result) {
     return res
@@ -354,5 +354,9 @@ export const updateManyProduct = async (req, res) => {
 
   return res
     .status(HTTP_STATUS.OK)
-    .json({ message: 'Update many successfully', success: true, status: HTTP_STATUS.OK });
+    .json({
+      message: deleted ? 'Restore product success!' : 'Update many successfully',
+      success: true,
+      status: HTTP_STATUS.OK,
+    });
 };
