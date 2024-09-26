@@ -59,3 +59,8 @@ export const deleteIdProductFromCategory = async (isExistCategory, isExistProduc
 
   return category;
 };
+
+export const deleteCategoryService = async (id) => {
+  const category = await Category.findByIdAndDelete({ _id: id });
+  return category;
+};

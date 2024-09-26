@@ -1,5 +1,6 @@
 import {
   createCategoryService,
+  deleteCategoryService,
   getAllCategories,
   getCategoryByIdService,
   updateCategoryService,
@@ -55,4 +56,14 @@ export const updateCategory = async (req, res) => {
   }
 
   return res.status(HTTP_STATUS.OK).json({ message: 'Update category success!', success: true, data: result });
+};
+
+// delete category
+export const deleteCategory = async (req, res) => {
+  const { id } = req.params;
+  const result = await deleteCategoryService(id);
+  if (!result) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Delete category faild!', success: false });
+  }
+  return res.status(HTTP_STATUS.OK).json({ message: 'Delete category success!', success: true });
 };

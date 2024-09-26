@@ -1,4 +1,4 @@
-import { createCategory, getCategories, getCategoryById, updateCategory } from '../controllers/category.controller.js';
+import { createCategory, deleteCategory, getCategories, getCategoryById, updateCategory } from '../controllers/category.controller.js';
 
 import { categoryMiddleware } from '../middlewares/category.middleware.js';
 import { checkPermission } from '../middlewares/check-permission.middleware.js';
@@ -26,6 +26,14 @@ router.patch(
   wrapRequestHandler(verifyToken),
   wrapRequestHandler(checkPermission),
   wrapRequestHandler(updateCategory),
+);
+
+// delete
+router.delete(
+  '/category/:id',
+  wrapRequestHandler(verifyToken),
+  wrapRequestHandler(checkPermission),
+  wrapRequestHandler(deleteCategory),
 );
 
 export default router;
