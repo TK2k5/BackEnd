@@ -8,7 +8,7 @@ export const createCategoryService = async (body) => {
 
 // get all categories
 export const getAllCategories = async () => {
-  const categories = await Category.find().populate([{ path: 'products', select: '-category -brand' }]);
+  const categories = await Category.find().sort({createAt: -1})
   return categories;
 };
 
