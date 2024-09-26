@@ -20,8 +20,10 @@ export const createCategory = async (req, res) => {
 };
 
 // get Categories
-export const getCategories = async (_, res) => {
-  const result = await getAllCategories();
+export const getCategories = async (req, res) => {
+  const { q } = req.query
+
+  const result = await getAllCategories(q);
 
   if (!result) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Get categories faild!', success: false });

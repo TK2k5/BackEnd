@@ -7,8 +7,12 @@ export const createCategoryService = async (body) => {
 };
 
 // get all categories
-export const getAllCategories = async () => {
-  const categories = await Category.find().sort({createAt: -1})
+export const getAllCategories = async (q) => {
+  // const searchQuery = typeof q === 'string' ? q : '';
+  const query = {
+    nameCategory: { $regex: q || '', $options: 'i' },
+  };
+  const categories = await Category.find(query).sort({ createdAt: -1 });
   return categories;
 };
 
