@@ -11,10 +11,9 @@ export const categoryValidation = joi.object({
     'string.empty': 'Desc cannot empty',
     'any.required': 'Desc is required',
   }),
-  status: joi.string().required().default('inactive').messages({
+  status: joi.string().default('inactive').messages({
     'string.base': 'Status must be a string',
     'string.empty': 'Status cannot empty',
-    'any.required': 'Status is required',
   }),
   image: joi.string().required(),
   products: joi.string().allow('').messages({

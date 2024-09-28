@@ -10,7 +10,7 @@ const categorySchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['active', 'inactive'],
-      required: true,
+      required: false,
     },
     desc: {
       type: String,
