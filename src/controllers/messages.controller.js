@@ -9,7 +9,7 @@ export const messageApi = {
     const options = {
       limit: Number(_limit),
       page: Number(_page),
-      sort: { createdAt: -1 },
+      //sort: { createdAt: -1 },
       populate: [
         { path: 'room', select: '_id name createdAt updatedAt' },
         { path: 'sender', select: 'email _id' },
