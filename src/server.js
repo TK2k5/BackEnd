@@ -73,29 +73,12 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  socket.on('messengers', () => {
-    console.log('danh sách tin nhắn!');
+  console.log('User Connect: ', socket.id);
 
-    const messengers = [
-      {
-        id: 1,
-        content: 'messenger 1',
-      },
-      {
-        id: 2,
-        content: 'messenger 1',
-      },
-    ];
-
-    io.emit('result', messengers);
-  });
-
-  // socket.emit('send-data', data);
-
-  socket.on('add-product', (data) => {
-    io.on('add-product', (ahihi) => {
-      console.log('🚀 ~ io.on ~ ahihi:', ahihi);
-    });
+  // bắt sự kiện khi người dùng tham gia vào room
+  socket.on('join-room', (roomId) => {
+    socket.join(roomId); // => tham gia room
+    console.log(`User ${socket.id} join room ${roomId}`);
   });
 });
 

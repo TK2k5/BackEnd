@@ -6,6 +6,7 @@ import express from 'express';
 import imageRoutes from './upload-image.routes.js';
 import orderRoutes from './order.routes.js';
 import productRoutes from './product.routes.js';
+import roomRoutes from './room.routes.js';
 import userRoutes from './user.routes.js';
 import voucherRoutes from './voucher.routes.js';
 
@@ -21,6 +22,7 @@ const rootRoutes = [
   cartRoutes,
   orderRoutes,
   voucherRoutes,
+  roomRoutes
 ];
 
 rootRoutes.map((route) => {
