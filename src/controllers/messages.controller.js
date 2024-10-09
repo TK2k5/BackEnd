@@ -5,26 +5,30 @@ export const messageApi = {
   // get all messsage by room id
   getAllMessageByRoomId: async (req, res) => {
     const { search, _limit, _page, roomId } = req.params;
-    console.log('🚀 ~ getAllMessageByRoomId: ~ roomId:', roomId);
+
     const options = {
-      limit: Number(_limit),
+      limit: Number(_limit) || 1000,
       page: Number(_page),
-      //sort: { createdAt: -1 },
+      // sort: { createdAt: -1 },
       populate: [
         { path: 'room', select: '_id name createdAt updatedAt' },
         { path: 'sender', select: 'email _id' },
       ],
     };
     const messagers = await Message.paginate({}, options);
+
     if (!messagers) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Get all messagers failed', success: false });
     }
     return res.status(HTTP_STATUS.OK).json({ message: 'Get all messagers successfully', success: true, ...messagers });
   },
+
   // create messager
   createMesasger: async (req, res) => {
     const body = req.body;
+
     const newMessage = await Message.create(body);
+
     if (!newMessage) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: 'Send messager failed', success: false });
     }

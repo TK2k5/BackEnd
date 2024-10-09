@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 
+import Message from './models/message.model.js';
 import { Server } from 'socket.io';
 import apiDocumention from './docs/apidoc.doc.js';
 import connectDB from './configs/connect-db.config.js';
@@ -40,31 +41,6 @@ const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
-const data = [
-  {
-    _id: '668010dcb7e7cbb2aa93d922',
-    nameBrand: 'nike',
-    image: 'https://picsum.photos/536/354',
-    status: 'active',
-    country: 'Viet Nam',
-    desc: 'desc 1',
-    createdAt: '2024-06-29T13:49:16.774Z',
-    updatedAt: '2024-09-14T10:01:39.230Z',
-    products: [],
-  },
-  {
-    _id: '668010f4a9b59397567a34cf',
-    nameBrand: 'nike',
-    image: 'https://picsum.photos/536/354',
-    status: 'active',
-    country: 'Viet Nam',
-    desc: 'desc 1',
-    createdAt: '2024-06-29T13:49:40.145Z',
-    updatedAt: '2024-09-10T14:49:05.270Z',
-    products: ['66e05b3a94bf780643d0f7eb', '66e05c6194bf780643d0f973'],
-  },
-];
-
 // tạo socket
 const io = new Server(server, {
   cors: {
@@ -73,12 +49,21 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('User Connect: ', socket.id);
-
   // bắt sự kiện khi người dùng tham gia vào room
   socket.on('join-room', (roomId) => {
     socket.join(roomId); // => tham gia room
-    console.log(`User ${socket.id} join room ${roomId}`);
+  });
+
+  socket.on('send-message', async (data) => {
+    const newMessage = await Message.create(data);
+    if (!newMessage) {
+      return io.emit('error-message', { message: 'Send messager failed', success: false });
+    }
+    io.emit('received-message', newMessage);
+  });
+
+  socket.on('disconnect', (roomId) => {
+    console.log(socket.rooms);
   });
 });
 
